@@ -5,6 +5,7 @@ import boto3
 import io
 import time
 from .logger_config import setup_logger
+import streamlit as st
 logger = setup_logger()
 
 logger.info('Getting Reddit Credentials')
@@ -19,15 +20,28 @@ reddit = praw.Reddit(client_id=client_id, client_secret=client_secret, user_agen
 logger.info('Got Reddit Credentials')
 
 logger.info('Getting AWS Credentials')
-aws_cred_file = 'src/aws_cred.json'
-with open(aws_cred_file, 'r') as file:
-    aws_creds = json.load(file)
+# aws_cred_file = 'src/aws_cred.json'
+# with open(aws_cred_file, 'r') as file:
+#     aws_creds = json.load(file)
+
+# session_id_details = {
+#         'access_id': aws_creds['access_id'],
+#         'secret_token': aws_creds['secret_token'],
+#         'session_token': aws_creds['session_token']
+# }
+
+aws_access_key_id = st.secrets["aws"]["AWS_ACCESS_KEY_ID"]
+aws_secret_access_key = st.secrets["aws"]["AWS_SECRET_ACCESS_KEY"]
+aws_session_token = st.secrets["aws"].get("AWS_SESSION_TOKEN") 
 
 session_id_details = {
-        'access_id': aws_creds['access_id'],
-        'secret_token': aws_creds['secret_token'],
-        'session_token': aws_creds['session_token']
+        'access_id': aws_access_key_id,
+        'secret_token': aws_secret_access_key,
+        'session_token': aws_session_token
 }
+
+logger.info(f"AWS Access Key: {aws_access_key_id}")
+logger.info(f"AWS Secret Key: {aws_secret_access_key}")
 logger.info('Got AWS Credentials')
 
 def stream_to_s3(bucket_name, s3_key_prefix, data, session_id_details = session_id_details):
